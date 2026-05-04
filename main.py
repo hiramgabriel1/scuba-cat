@@ -3,10 +3,12 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 import pygame
+import pygame.mixer
 import sys
 import os
 
 pygame.init()
+pygame.mixer.init()
 
 class ScoobaDetector:
     def __init__(self):
@@ -22,12 +24,17 @@ class ScoobaDetector:
         self.video_frames = []
         self.load_video()
 
+        self.music_path = "scuba_song.mp3"
+        if os.path.exists(self.music_path):
+            pygame.mixer.music.load(self.music_path)
+            print("Music loaded")
+
         self.video_index = 0
         self.video_speed = 1
         self.video_counter = 0
         self.showing_video = False
         self.video_timer = 0
-        self.video_duration = 10
+        self.video_duration = 45
 
         self.font = pygame.font.Font(None, 36)
         self.clock = pygame.time.Clock()
@@ -58,7 +65,7 @@ class ScoobaDetector:
         for i in [8, 12, 16, 20]:
             extended.append(hand_landmarks[i].y < hand_landmarks[i-2].y)
 
-        if distance < 0.08 and sum(extended) >= 2:
+        if distance < 0.1 and sum(extended) >= 3:
             return True
         return False
 
@@ -72,6 +79,7 @@ class ScoobaDetector:
                 if event.type == pygame.QUIT:
                     cap.release()
                     self.video_cap.release()
+                    pygame.mixer.music.stop()
                     pygame.quit()
                     sys.exit()
 
@@ -94,10 +102,14 @@ class ScoobaDetector:
             if scooba_detected:
                 self.showing_video = True
                 self.video_timer = self.video_duration
+                if not pygame.mixer.music.get_busy():
+                    pygame.mixer.music.play(-1)
             elif self.video_timer > 0:
                 self.video_timer -= 1
             else:
                 self.showing_video = False
+                if pygame.mixer.music.get_busy():
+                    pygame.mixer.music.stop()
 
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame_surface = pygame.surfarray.make_surface(frame_rgb)
