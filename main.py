@@ -27,7 +27,7 @@ class ScoobaDetector:
         self.video_counter = 0
         self.showing_video = False
         self.video_timer = 0
-        self.video_duration = 90
+        self.video_duration = 10
 
         self.font = pygame.font.Font(None, 36)
         self.clock = pygame.time.Clock()
@@ -115,10 +115,7 @@ class ScoobaDetector:
 
                 video_frame = self.video_frames[self.video_index]
                 video_scaled = pygame.transform.scale(video_frame, (300, 300))
-                self.screen.blit(video_scaled, (20, 20))
-
-            instructions = self.font.render("Haz el gesto de Scooby con las manos", True, (255, 255, 255))
-            self.screen.blit(instructions, (150, 560))
+                self.screen.blit(video_scaled, (80, 20))
 
             pygame.display.flip()
             self.clock.tick(30)
